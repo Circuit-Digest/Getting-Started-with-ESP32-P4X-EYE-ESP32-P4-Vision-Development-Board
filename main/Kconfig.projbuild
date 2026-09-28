@@ -1,0 +1,157 @@
+menu "Face Recorder (ESP32-P4X-EYE)"
+
+    menu "Indicator LED"
+        config APP_LED_GPIO
+            int "Indicator LED GPIO"
+            range 0 54
+            default 34
+            help
+                GPIO that drives the face-detected / recording indicator LED.
+
+                Default 34 is on the 2x10 expansion header (connect LED + series
+                resistor, e.g. 330R, from the GPIO to GND). Other free header GPIOs:
+                6, 7, 8, 10, 37, 38, 50, 51, 52, 53, 54.
+                Set to 23 to use the on-board flash LED as the indicator.
+
+        config APP_LED_ACTIVE_HIGH
+            bool "Indicator LED is active high"
+            default y
+            help
+                Enable when driving the GPIO high turns the LED on
+                (true for an LED wired GPIO -> R -> LED -> GND).
+
+        config APP_FLASH_LED_GPIO
+            int "On-board flash LED GPIO (-1 = none)"
+            range -1 54
+            default 23
+            help
+                The ESP32-P4X-EYE flash (fill light) LED. When enabled with Button 3
+                (on-screen "B3 Flash") it is on steadily while a clip is recorded (no blinking).
+
+        choice APP_LED_REC_MODE
+            prompt "LED behaviour while recording"
+            default APP_LED_REC_BLINK
+            help
+                While a face is in view (and nothing is being recorded) the LED is on solid.
+                Pick how the LED signals an ongoing recording.
+
+            config APP_LED_REC_BLINK
+                bool "Blink"
+            config APP_LED_REC_SOLID
+                bool "Solid on"
+        endchoice
+
+        config APP_LED_BLINK_PERIOD_MS
+            int "Blink half-period (ms)"
+            depends on APP_LED_REC_BLINK
+            range 50 2000
+            default 250
+    endmenu
+
+    menu "Recording"
+        config APP_RECORD_SECONDS
+            int "Default clip length (seconds)"
+            range 1 60
+            default 5
+            help
+                Length of each clip recorded after a face is detected.
+                Can also be changed at run time with the rotary encoder.
+
+        config APP_RECORD_COOLDOWN_S
+            int "Pause after a clip before re-triggering (seconds)"
+            range 0 600
+            default 3
+
+        config APP_RECORD_DIR
+            string "Folder for the clips on the storage device"
+            default "FACEREC"
+
+        config APP_VIDEO_BITRATE_KBPS
+            int "H.264 video bitrate (kbit/s)"
+            range 500 20000
+            default 4000
+
+        config APP_AUDIO_BITRATE
+            int "AAC audio bitrate (bit/s)"
+            range 24000 96000
+            default 64000
+
+        config APP_MIC_GAIN
+            int "Software microphone gain (x)"
+            range 1 32
+            default 4
+            help
+                The PDM microphone has no analog gain stage, the samples are
+                multiplied by this factor (with clipping) before encoding.
+    endmenu
+
+    menu "Face detection"
+        config APP_AUTO_RECORD_DEFAULT
+            bool "Auto (face triggered) recording armed at boot"
+            default y
+
+        config APP_FACE_SCORE_PCT
+            int "Minimum face confidence (%)"
+            range 50 99
+            default 60
+
+        config APP_FACE_MIN_FRAMES
+            int "Consecutive detections needed to trigger"
+            range 1 20
+            default 2
+            help
+                Number of consecutive analysed frames that must contain a face
+                before a recording is triggered. Filters out false positives.
+    endmenu
+
+    menu "Storage"
+        config APP_SD_USE_CARD_DETECT
+            bool "Use the microSD card-detect pin"
+            default y
+            help
+                Hot-plug the microSD card using its card-detect switch (GPIO45).
+                When disabled the card is probed at boot and every few seconds while
+                nothing is mounted.
+    endmenu
+
+    menu "Camera and display"
+        config APP_CAMERA_HFLIP
+            bool "Mirror camera image horizontally"
+            default n
+
+        config APP_CAMERA_VFLIP
+            bool "Flip camera image vertically"
+            default n
+
+        config APP_DISPLAY_ROTATE_180
+            bool "Rotate the LCD content by 180 degrees"
+            default n
+
+        config APP_LCD_BRIGHTNESS
+            int "LCD brightness (%)"
+            range 10 100
+            default 80
+    endmenu
+
+    menu "Buttons and encoder"
+        config APP_BTN_RECORD_GPIO
+            int "Button 1: manual record / stop (player: play / pause)"
+            default 3
+        config APP_BTN_ARM_GPIO
+            int "Button 2: arm / disarm auto recording (player: delete)"
+            default 4
+        config APP_BTN_LED_GPIO
+            int "Button 3: flash LED on / off, long press: reset settings (player: back)"
+            default 5
+        config APP_BTN_ENCODER_GPIO
+            int "Encoder push: open video player / play-pause (long press: USB drive mode)"
+            default 2
+        config APP_ENCODER_A_GPIO
+            int "Encoder A (rotate: clip length / player: previous-next)"
+            default 48
+        config APP_ENCODER_B_GPIO
+            int "Encoder B"
+            default 47
+    endmenu
+
+endmenu

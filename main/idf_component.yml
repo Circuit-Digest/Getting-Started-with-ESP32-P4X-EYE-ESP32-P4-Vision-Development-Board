@@ -1,0 +1,31 @@
+## IDF Component Manager Manifest File
+dependencies:
+  idf:
+    version: ">=5.5"
+
+  # Official Board Support Package (github.com/espressif/esp-bsp).
+  # ESP32-P4X-EYE is the ESP32-P4-EYE with a chip revision v3.1 - same board, same BSP.
+  espressif/esp32_p4_eye:
+    version: "^2.0.2"
+
+  # Face detection model (esp-dl)
+  espressif/human_face_detect:
+    version: "^0.5.0"
+
+  # Hardware H.264 encoder
+  espressif/esp_h264:
+    version: "*"   # version is dictated by esp_video (pulled in by the BSP)
+
+  # AAC audio encoder + MP4 muxer
+  espressif/esp_audio_codec:
+    version: "^2.3.0"
+  espressif/esp_muxer:
+    version: "^1.2.0"
+
+  # USB mass storage device (microSD card as a USB drive on the PC)
+  espressif/esp_tinyusb:
+    version: "~2.3.0"
+
+  # Rotary encoder on the back of the board
+  espressif/knob:
+    version: "^1.0.0"
